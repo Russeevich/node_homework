@@ -1,32 +1,32 @@
-const path = require('path')
-const fs = require('fs-extra')
-const glob = require('glob')
+const express = require('express')
+const app = express()
+const port = 3000
 
-const mainDir = path.resolve(__dirname, process.argv[2])
-const pathMain = path.resolve(__dirname, process.argv[3])
-const deleteFolder = process.argv[4]
+var users = [
 
-const types = [
-    { type: ".pdf", dir: 'documents' },
-    { type: ".png", dir: 'images' },
-    { type: ".mp3", dir: "music" }
-]
+    ],
+    timer = 0
 
-fs.removeSync(pathMain)
-
-glob(mainDir + '/**/*.*', (err, res) => {
-    const files = res.map(item => ({ name: item.split('/')[item.split('/').length - 1], path: item, ext: item.split('/')[item.split('/').length - 1].split('.')[1] }))
-    if (!fs.existsSync(pathMain))
-        fs.mkdirSync(pathMain)
-    for (const item of files) {
-        const dirPath = path.resolve(`${pathMain}/${types.find(type => type.type.includes(item.ext)) ?types.find(type => type.type.includes(item.ext)).dir : 'other' }`)
-        if (!fs.existsSync(dirPath))
-            fs.mkdirSync(dirPath)
-        const pathx = path.resolve(`${dirPath}/${item.name[0]}`).toString()
-        if (!fs.existsSync(pathx))
-            fs.mkdirSync(pathx)
-        fs.moveSync(item.path, path.resolve(`${pathx}/${item.name}`).toString())
-    }
-    if (deleteFolder === 'true')
-        fs.removeSync(mainDir)
+app.get('/data', (req, res) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Transfer-Encoding", "chunked")
+    users.push(res)
 })
+
+setInterval(() => {
+    console.log(`Time: ${timer}`)
+    if (++timer > 20) {
+        users.forEach(user => {
+            user.write('END\n')
+            user.end()
+        })
+        timer = 0
+        users = []
+    }
+    users.forEach((user, ndx) => {
+        user.write(`UserId: ${ndx}, Time: ${timer}\n`)
+    })
+}, 1000)
+
+
+app.listen(port, () => console.log(`Server start in port ${port}`))
