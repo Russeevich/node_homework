@@ -1,32 +1,41 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
-const port = 3000
+const port = process.env.PORT
+const delay = process.env.DELAY
+const timestop = process.env.TIMESTOP
 
-var users = [
+let users = [
 
-    ],
-    timer = 0
+]
 
 app.get('/data', (req, res) => {
     res.setHeader("Content-Type", "text/html; charset=utf-8")
     res.setHeader("Transfer-Encoding", "chunked")
-    users.push(res)
+    users.push({ res, time: Date.now() })
 })
 
+const getDate = () => {
+    var date = new Date()
+    var now_utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
+        date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds())
+
+    return new Date(now_utc)
+}
+
 setInterval(() => {
-    console.log(`Time: ${timer}`)
-    if (++timer > 20) {
-        users.forEach(user => {
-            user.write('END\n')
-            user.end()
-        })
-        timer = 0
-        users = []
-    }
+    const date = getDate()
+    console.log(`Time: ${date}`)
     users.forEach((user, ndx) => {
-        user.write(`UserId: ${ndx}, Time: ${timer}\n`)
+        if (Date.now() - user.time < timestop) {
+            user.res.write(`UserId: ${ndx}, Time: ${date}\n`)
+        } else {
+            user.res.write(`Time: ${date}, END\n`)
+            user.res.end()
+            users = users.filter((_, index) => index !== ndx)
+        }
     })
-}, 1000)
+}, delay)
 
 
 app.listen(port, () => console.log(`Server start in port ${port}`))
