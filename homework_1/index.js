@@ -2,31 +2,34 @@ const path = require('path')
 const fs = require('fs-extra')
 const glob = require('glob')
 
-const mainDir = path.resolve(__dirname, process.argv[2])
-const pathMain = path.resolve(__dirname, process.argv[3])
-const deleteFolder = process.argv[4]
+const mainDir = process.argv[2] ? path.resolve(__dirname, process.argv[2]) : path.resolve(__dirname, './test1')
+const pathMain = process.argv[3] ? path.resolve(__dirname, process.argv[3]) : path.resolve(__dirname, './test2')
+const deleteFolder = process.argv[4] ? process.argv[4] : false
 
-const types = [
-    { type: ".pdf", dir: 'documents' },
-    { type: ".png", dir: 'images' },
-    { type: ".mp3", dir: "music" }
-]
+const takeError = (err) => {
+    if (err)
+        throw new Error(err)
+    else
+        console.log('Success!')
+}
 
-fs.removeSync(pathMain)
+fs.remove(pathMain, takeError)
+
 
 glob(mainDir + '/**/*.*', (err, res) => {
-    const files = res.map(item => ({ name: item.split('/')[item.split('/').length - 1], path: item, ext: item.split('/')[item.split('/').length - 1].split('.')[1] }))
-    if (!fs.existsSync(pathMain))
-        fs.mkdirSync(pathMain)
+
+    takeError(err)
+
+    const files = res.map(item => ({ name: item.split('/')[item.split('/').length - 1], path: item }))
+
+    fs.mkdir(pathMain, takeError)
+
     for (const item of files) {
-        const dirPath = path.resolve(`${pathMain}/${types.find(type => type.type.includes(item.ext)) ?types.find(type => type.type.includes(item.ext)).dir : 'other' }`)
-        if (!fs.existsSync(dirPath))
-            fs.mkdirSync(dirPath)
-        const pathx = path.resolve(`${dirPath}/${item.name[0]}`).toString()
-        if (!fs.existsSync(pathx))
-            fs.mkdirSync(pathx)
-        fs.moveSync(item.path, path.resolve(`${pathx}/${item.name}`).toString())
+        const pathx = path.resolve(`${pathMain}/${item.name[0]}`).toString()
+        if (!fs.pathExists(pathx))
+            fs.mkdir(pathx, takeError)
+        fs.move(item.path, path.resolve(`${pathx}/${item.name}`).toString(), takeError)
     }
     if (deleteFolder === 'true')
-        fs.removeSync(mainDir)
+        fs.remove(mainDir, takeError)
 })
