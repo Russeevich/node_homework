@@ -14,28 +14,38 @@ const takeError = (err) => {
 
 fs.remove(pathMain, takeError)
 
+const cpFile = (item, pathx) => {
+    if (deleteFolder === true) {
+        fs.move(item.path, path.resolve(`${pathx}/${item.name}`), takeError)
+    } else {
+        fs.copyFile(item.path, path.resolve(`${pathx}/${item.name}`), takeError)
+    }
+}
 
-glob(mainDir + '/**/*.*', async(err, res) => {
+
+glob(mainDir + '/**/*.*', (err, res) => {
 
     takeError(err)
 
     const files = res.map(item => ({ name: item.split('/')[item.split('/').length - 1], path: item }))
 
-    fs.mkdir(pathMain, takeError)
+    fs.mkdirSync(pathMain, (err) => {
+        takeError(err)
 
-    for (const item of files) {
-        const pathx = path.resolve(`${pathMain}/${item.name[0].toUpperCase()}`)
+        for (const item of files) {
+            const pathx = path.resolve(`${pathMain}/${item.name[0].toUpperCase()}`)
 
-        if (!fs.pathExists(pathx)) {
-            fs.mkdir(pathx, takeError)
+            if (!fs.pathExists(pathx)) {
+                fs.mkdir(pathx, (err) => {
+                    takeError(err)
+
+                    cpFile(item, pathx)
+                })
+            } else {
+                cpFile(item, pathx)
+            }
         }
-
-        if (deleteFolder === true) {
-            fs.move(item.path, path.resolve(`${pathx}/${item.name}`), takeError)
-        } else {
-            fs.copyFile(item.path, path.resolve(`${pathx}/${item.name}`), takeError)
-        }
-    }
-    if (deleteFolder === 'true')
-        fs.remove(mainDir, takeError)
+        if (deleteFolder === 'true')
+            fs.remove(mainDir, takeError)
+    })
 })
