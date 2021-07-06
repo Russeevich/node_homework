@@ -1,9 +1,8 @@
-require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT
-const delay = process.env.DELAY
-const timestop = process.env.TIMESTOP
+const delay = process.env.DELAY || 1000
+const timestop = process.env.TIMESTOP || 10000
 
 let users = []
 
