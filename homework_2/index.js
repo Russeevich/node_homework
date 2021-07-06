@@ -5,9 +5,7 @@ const port = process.env.PORT
 const delay = process.env.DELAY
 const timestop = process.env.TIMESTOP
 
-let users = [
-
-]
+let users = []
 
 app.get('/data', (req, res) => {
     res.setHeader("Content-Type", "text/html; charset=utf-8")
@@ -16,25 +14,25 @@ app.get('/data', (req, res) => {
 })
 
 const getDate = () => {
-    var date = new Date()
-    var now_utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
-        date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds())
+    const date = new Date(),
+        now_utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
+            date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds())
 
     return new Date(now_utc)
 }
 
 setInterval(() => {
-    const date = getDate()
-    console.log(`Time: ${date}`)
-    users.forEach((user, ndx) => {
-        if (Date.now() - user.time < timestop) {
-            user.res.write(`UserId: ${ndx}, Time: ${date}\n`)
-        } else {
-            user.res.write(`Time: ${date}, END\n`)
-            user.res.end()
-            users = users.filter((_, index) => index !== ndx)
-        }
-    })
+    if (users.length > 0) {
+        const date = getDate()
+        console.log(`Time: ${date}`)
+        users.forEach((user, ndx) => {
+            if (Date.now() - user.time >= timestop) {
+                user.res.write(`Time: ${date}, END`)
+                user.res.end()
+                users = users.filter((_, index) => index !== ndx)
+            }
+        })
+    }
 }, delay)
 
 
