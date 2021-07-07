@@ -29,7 +29,7 @@ glob(mainDir + '/**/*.*', (err, res) => {
 
     const files = res.map(item => ({ name: item.split('/')[item.split('/').length - 1], path: item }))
 
-    fs.mkdirSync(pathMain, (err) => {
+    fs.mkdir(pathMain, (err) => {
         takeError(err)
 
         for (const item of files) {
