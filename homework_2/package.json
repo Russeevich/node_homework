@@ -6,12 +6,13 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node index.js",
-        "start_windows": "set PORT=3001 && set DELAY=1000 && set TIMESTOP=10000 && node index.js"
+        "start:with_env": "cross-env PORT=3001 DELAY=1000 TIMESTOP=10000 node index.js"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "cross-env": "^7.0.3",
         "express": "^4.17.1",
         "fs-extra": "^10.0.0",
         "glob": "^7.1.7",
