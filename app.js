@@ -4,6 +4,7 @@ const path = require('path')
 const logger = require('morgan')
 const fileUpload = require('express-fileupload')
 const mainRouter = require('./routes/')
+const cookieParser = require('cookie-parser')
 
 const app = express()
 
@@ -12,6 +13,7 @@ app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'pug')
 
 app.use(fileUpload())
+app.use(cookieParser())
 
 process.env.NODE_ENV === 'development' ?
     app.use(logger('dev')) :

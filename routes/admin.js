@@ -1,11 +1,30 @@
 const express = require('express')
 const router = express.Router()
 const path = require('path')
+const jwt = require('jsonwebtoken')
 const JSONdb = require('simple-json-db')
 const db = new JSONdb(path.join(__dirname, '../data.json'))
 
 router.get('/', (req, res, next) => {
-    res.render('pages/admin', { title: 'Admin page', skills: db.get('skills') })
+    try {
+        if (!req.cookies.authorization) {
+            throw new Error('Нет прав для входа')
+        }
+        const { data } = jwt.verify(req.cookies.authorization, 'loftschool'),
+            admin = db.get('admin')
+
+        if (admin.email !== data.email || admin.password !== data.password) {
+            throw new Error('Нет прав для доступа')
+        }
+
+        res.render('pages/admin', { title: 'Admin page', skills: db.get('skills') })
+    } catch (err) {
+        if (typeof err === 'object' && !Object.keys(err).length) {
+            res.send('Нет прав для входа')
+        } else {
+            res.send(err)
+        }
+    }
 })
 
 router.post('/skills', (req, res, next) => {
