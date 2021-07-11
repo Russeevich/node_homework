@@ -23,14 +23,16 @@
         "prettier": "^2.2.0"
     },
     "dependencies": {
-        "cookie-parser": "^1.4.5",
-        "cross-env": "^7.0.2",
-        "express": "^4.17.1",
-        "express-fileupload": "^1.2.1",
-        "http-errors": "^1.8.0",
         "jsonwebtoken": "^8.5.1",
-        "morgan": "^1.10.0",
-        "multer": "^1.4.2",
+        "koa": "^2.13.1",
+        "koa-body": "^4.2.0",
+        "koa-bodyparser": "^4.3.0",
+        "koa-convert": "^2.0.0",
+        "koa-cookie": "^1.0.0",
+        "koa-logger": "^3.2.1",
+        "koa-pug": "^5.0.0",
+        "koa-router": "^10.0.0",
+        "koa-static": "^5.0.0",
         "pug": "^3.0.0",
         "simple-json-db": "^1.2.3"
     }

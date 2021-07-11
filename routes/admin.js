@@ -1,69 +1,84 @@
-const express = require('express')
-const router = express.Router()
+const Router = require('koa-router')
+const KoaBody = require('koa-body')
 const path = require('path')
+const convert = require('koa-convert')
 const jwt = require('jsonwebtoken')
 const JSONdb = require('simple-json-db')
 const db = new JSONdb(path.join(__dirname, '../data.json'))
+const fs = require('fs')
+const productPath = path.join(__dirname, '../public/assets/img/products/')
 
-router.get('/', (req, res, next) => {
-    try {
-        if (!req.cookies.authorization) {
-            throw new Error('Нет прав для входа')
+const router = new Router(),
+    koaBody = convert(KoaBody({ multipart: true, formidable: { uploadDir: productPath }, urlencoded: true }))
+
+router
+    .get('/', async(ctx, next) => {
+        try {
+            if (!ctx.cookie.authorization) {
+                throw new Error('Нет прав для входа')
+            }
+            const { data } = jwt.verify(ctx.cookie.authorization, 'loftschool'),
+                admin = db.get('admin')
+
+            if (admin.email !== data.email || admin.password !== data.password) {
+                throw new Error('Нет прав для доступа')
+            }
+
+            await ctx.render('pages/admin', { title: 'Admin page', skills: db.get('skills') })
+        } catch (err) {
+            if (typeof err === 'object' && !Object.keys(err).length) {
+                ctx.body = 'Нет прав для входа'
+            } else {
+                ctx.body = err
+            }
         }
-        const { data } = jwt.verify(req.cookies.authorization, 'loftschool'),
-            admin = db.get('admin')
+    }).post('/skills', async(ctx, next) => {
+        let newValues = Object.values(ctx.request.body),
+            oldSkills = db.get('skills'),
+            newSkills = Object.values(oldSkills).map((item, index) => ({ number: parseInt(newValues[index]), text: item.text }))
 
-        if (admin.email !== data.email || admin.password !== data.password) {
-            throw new Error('Нет прав для доступа')
-        }
-
-        res.render('pages/admin', { title: 'Admin page', skills: db.get('skills') })
-    } catch (err) {
-        if (typeof err === 'object' && !Object.keys(err).length) {
-            res.send('Нет прав для входа')
+        if (JSON.stringify(newSkills) !== JSON.stringify(db.get('skills'))) {
+            db.set('skills', newSkills)
+            ctx.redirect('/admin')
         } else {
-            res.send(err)
+            ctx.body = 'В скиллах ничего не поменялось'
         }
-    }
-})
-
-router.post('/skills', (req, res, next) => {
-    let newValues = Object.values(req.body),
-        oldSkills = db.get('skills'),
-        newSkills = Object.values(oldSkills).map((item, index) => ({ number: parseInt(newValues[index]), text: item.text }))
-
-    if (JSON.stringify(newSkills) !== JSON.stringify(db.get('skills'))) {
-        db.set('skills', newSkills)
-        res.redirect(301, '/admin')
-    } else {
-        res.send('В скиллах ничего не поменялось')
-    }
-})
-
-router.post('/upload', (req, res, next) => {
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send('Файл не загружен')
-    }
-    let sampleFile = req.files.photo
-
-    sampleFile.mv(path.join(__dirname, '../public/assets/img/products/', sampleFile.name), function(err) {
-        if (err)
-            return res.status(500).send(err)
-
-        if (req.body.name.length < 1 || req.body.price.length < 1) {
-            return res.status(400).send('Недопустимая длина полей')
-        }
-
-        const saveFile = {
-            src: `./assets/img/products/${sampleFile.name}`,
-            name: req.body.name,
-            price: req.body.price
-        }
-
-        db.set('products', db.get('products') ? [...db.get('products'), saveFile] : [saveFile])
-
-        res.send('Продукт успешно добавлен')
     })
-})
+    .post('/upload', koaBody, async(ctx, next) => {
+        if (!ctx.request.files || Object.keys(ctx.request.files).length === 0) {
+            return ctx.body = 'Файл не загружен'
+        }
 
-module.exports = router
+        if (ctx.request.body.name.length < 1 || ctx.request.body.price.length < 1) {
+            return ctx.body = 'Недопустимая длина полей'
+        }
+
+        let sampleFile = ctx.request.files.photo
+
+
+
+        try {
+            ctx.body = await new Promise((res, rej) => {
+                fs.rename(sampleFile.path, path.join(productPath, sampleFile.name), (err) => {
+                    if (err)
+                        rej(err)
+
+                    const saveFile = {
+                        src: `./assets/img/products/${sampleFile.name}`,
+                        name: ctx.request.body.name,
+                        price: ctx.request.body.price
+                    }
+
+                    db.set('products', db.get('products') ? [...db.get('products'), saveFile] : [saveFile])
+
+                    res('Продукт успешно добавлен')
+                })
+            })
+        } catch (err) {
+            ctx.body = err
+        }
+    })
+
+module.exports = {
+    routes() { return router.routes() }
+}

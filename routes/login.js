@@ -1,46 +1,51 @@
-const express = require('express')
-const router = express.Router()
+const Router = require('koa-router')
+const KoaBody = require('koa-body')
 const path = require('path')
 const jwt = require('jsonwebtoken')
+const convert = require('koa-convert')
 const JSONdb = require('simple-json-db')
 const db = new JSONdb(path.join(__dirname, '../data.json'))
 
-router.get('/', (req, res, next) => {
-    try {
-        if (req.cookies.authorization) {
-            const { data } = jwt.verify(req.cookies.authorization, 'loftschool'),
-                admin = db.get('admin')
+const router = new Router(),
+    koaBody = convert(KoaBody())
 
-            if (admin.email !== data.email || admin.password !== data.password) {
-                throw new Error('Неправильный токен')
-            } else {
-                res.redirect(301, '/admin')
+router
+    .get('/', async(ctx, next) => {
+        try {
+            if (ctx.cookie.authorization) {
+                const { data } = jwt.verify(ctx.cookie.authorization, 'loftschool'),
+                    admin = db.get('admin')
+
+                if (admin.email !== data.email || admin.password !== data.password) {
+                    throw new Error('Неправильный токен')
+                } else {
+                    ctx.redirect('/admin')
+                }
             }
+        } catch (err) {
+            ctx.cookies.set('authorization', '')
         }
-    } catch (err) {
-        res.cookie('authorization', '')
-    }
-    res.render('pages/login', { title: 'SigIn page' })
-})
+        await ctx.render('pages/login', { title: 'SigIn page' })
+    })
+    .post('/', async(ctx, next) => {
+        const { email, password } = ctx.request.body
+        const admin = db.get('admin')
 
-router.post('/', (req, res, next) => {
-    const { email, password } = req.body
-    const admin = db.get('admin')
+        if (admin.email === email && admin.password === password) {
+            const token = jwt.sign({
+                exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                data: {
+                    email,
+                    password
+                }
+            }, 'loftschool')
+            ctx.cookies.set('authorization', token)
+            ctx.redirect('/admin')
+        } else {
+            ctx.body = 'Неверный email или пароль'
+        }
+    })
 
-    if (admin.email === email && admin.password === password) {
-        const token = jwt.sign({
-            exp: Math.floor(Date.now() / 1000) + (60 * 60),
-            data: {
-                email,
-                password
-            }
-        }, 'loftschool')
-        res.cookie('authorization', token)
-        res.redirect(301, '/admin')
-    } else {
-        res.send('Неверный email или пароль')
-    }
-
-})
-
-module.exports = router
+module.exports = {
+    routes() { return router.routes() }
+}

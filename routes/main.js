@@ -1,23 +1,28 @@
-const express = require('express')
-const router = express.Router()
+const Router = require('koa-router')
+const KoaBody = require('koa-body')
 const path = require('path')
+const convert = require('koa-convert')
 const JSONdb = require('simple-json-db')
 const db = new JSONdb(path.join(__dirname, '../data.json'))
 
-router.get('/', (req, res, next) => {
-    res.render('pages/index', { title: 'Main page', products: db.get('products'), skills: db.get('skills') })
-})
+const router = new Router(),
+    koaBody = convert(KoaBody())
 
-router.post('/', (req, res, next) => {
-    const { name, email, message } = req.body
+router
+    .get('/', async(ctx, next) => {
+        await ctx.render('pages/index', { title: 'Main page', products: db.get('products'), skills: db.get('skills') })
+    })
+    .post('/', async(ctx, next) => {
+        const { name, email, message } = ctx.request.body
 
+        if (name.length > 0 && email.length > 0 & message.length > 0) {
+            db.set('messages', db.get('messages') ? [...db.get('messages'), ctx.request.body] : [ctx.request.body])
+            ctx.body = 'Письмо отправленно'
+        } else {
+            ctx.body = 'Ошибка заполнения данных'
+        }
+    })
 
-    if (name.length > 0 && email.length > 0 & message.length > 0) {
-        db.set('messages', db.get('messages') ? [...db.get('messages'), req.body] : [req.body])
-        res.send('Письмо отправленно')
-    } else {
-        res.send('Ошибка заполнения данных')
-    }
-})
-
-module.exports = router
+module.exports = {
+    routes() { return router.routes() }
+}
