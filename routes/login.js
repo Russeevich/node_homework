@@ -1,15 +1,17 @@
 const express = require('express')
-const router = express.Router()
 const path = require('path')
 const jwt = require('jsonwebtoken')
 const JSONdb = require('simple-json-db')
 const db = new JSONdb(path.join(__dirname, '../data.json'))
 
+const router = express.Router()
+
 router.get('/', (req, res, next) => {
     try {
         if (req.cookies.authorization) {
-            const { data } = jwt.verify(req.cookies.authorization, 'loftschool'),
-                admin = db.get('admin')
+            const { data } = jwt.verify(req.cookies.authorization, 'loftschool')
+
+            const admin = db.get('admin')
 
             if (admin.email !== data.email || admin.password !== data.password) {
                 throw new Error('Неправильный токен')
@@ -25,6 +27,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
     const { email, password } = req.body
+
     const admin = db.get('admin')
 
     if (admin.email === email && admin.password === password) {
@@ -38,7 +41,7 @@ router.post('/', (req, res, next) => {
         res.cookie('authorization', token)
         res.redirect(301, '/admin')
     } else {
-        res.send('Неверный email или пароль')
+        res.render('pages/login', { title: 'SigIn page', msglogin: 'Неверный email или пароль' })
     }
 
 })
