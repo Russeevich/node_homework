@@ -23,6 +23,7 @@
         "prettier": "^2.2.0"
     },
     "dependencies": {
+        "cross-env": "^7.0.3",
         "jsonwebtoken": "^8.5.1",
         "koa": "^2.13.1",
         "koa-body": "^4.2.0",

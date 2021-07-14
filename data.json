@@ -1,7 +1,7 @@
 {
     "skills": [
         {
-            "number": 19,
+            "number": 16,
             "text": "Возраст начала занятий на скрипке"
         },
         {
@@ -83,6 +83,26 @@
             "name": "Николай",
             "email": "empiks18@gmail.com",
             "message": "asjncanskc"
+        },
+        {
+            "name": "123",
+            "email": "123@12312.ru",
+            "message": "123"
+        },
+        {
+            "name": "123",
+            "email": "123@12312.ru",
+            "message": "123"
+        },
+        {
+            "name": "ывфыв",
+            "email": "admin@fasad.ru",
+            "message": "123123"
+        },
+        {
+            "name": "ывфыв",
+            "email": "admin@fasad.ru",
+            "message": "123123"
         }
     ]
 }

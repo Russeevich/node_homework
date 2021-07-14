@@ -16,10 +16,11 @@ router
         const { name, email, message } = ctx.request.body
 
         if (name.length > 0 && email.length > 0 & message.length > 0) {
-            db.set('messages', db.get('messages') ? [...db.get('messages'), ctx.request.body] : [ctx.request.body])
-            ctx.body = 'Письмо отправленно'
+            const messages = db.get('messages')
+            db.set('messages', messages ? [...messages, ctx.request.body] : [ctx.request.body])
+            await ctx.render('pages/index', { title: 'Main page', products: db.get('products'), skills: db.get('skills'), msgemail: 'Сообщение успешно отправлено' })
         } else {
-            ctx.body = 'Ошибка заполнения данных'
+            await ctx.render('pages/index', { title: 'Main page', products: db.get('products'), skills: db.get('skills'), msgemail: 'Ошибка заполнения данных' })
         }
     })
 

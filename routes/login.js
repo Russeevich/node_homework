@@ -13,8 +13,8 @@ router
     .get('/', async(ctx, next) => {
         try {
             if (ctx.cookie.authorization) {
-                const { data } = jwt.verify(ctx.cookie.authorization, 'loftschool'),
-                    admin = db.get('admin')
+                const { data } = jwt.verify(ctx.cookie.authorization, 'loftschool')
+                const admin = db.get('admin')
 
                 if (admin.email !== data.email || admin.password !== data.password) {
                     throw new Error('Неправильный токен')
@@ -42,7 +42,7 @@ router
             ctx.cookies.set('authorization', token)
             ctx.redirect('/admin')
         } else {
-            ctx.body = 'Неверный email или пароль'
+            await ctx.render('pages/admin', { title: 'Login page', msglogin: 'Неверный email или пароль' })
         }
     })
 
