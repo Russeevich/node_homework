@@ -1,0 +1,93 @@
+{
+    "skills": [
+        {
+            "number": 15,
+            "text": "Возраст начала занятий на скрипке"
+        },
+        {
+            "number": 76,
+            "text": "Концертов отыграл"
+        },
+        {
+            "number": 30,
+            "text": "Максимальное число городов в туре"
+        },
+        {
+            "number": 23,
+            "text": "Лет на сцене в качестве скрипача"
+        }
+    ],
+    "products": [
+        {
+            "src": "./assets/img/products/Work1.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work2.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work3.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work4.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work5.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work6.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work7.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work8.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/Work9.jpg",
+            "name": "Вино вдохновение",
+            "price": 600
+        },
+        {
+            "src": "./assets/img/products/1582034131_tokyo_vsthemes_ru-26.jpg",
+            "name": "Boots",
+            "price": "600"
+        }
+    ],
+    "admin": {
+        "email": "admin@admin.ru",
+        "password": "admin"
+    },
+    "messages": [
+        {
+            "name": "Николай",
+            "email": "empiks18@gmail.com",
+            "message": "asjncanskc"
+        },
+        {
+            "name": "Николай",
+            "email": "empiks18@gmail.com",
+            "message": "asjncanskc"
+        },
+        {
+            "name": "фывфы",
+            "email": "admin@admin.ru",
+            "message": "1231"
+        }
+    ]
+}
