@@ -11,7 +11,7 @@ const logger = require('koa-logger')
 const pug = new Pug({
     viewPath: path.join(__dirname, 'views'),
     basedir: path.join(__dirname, 'views'),
-    app: app
+    app
 })
 
 app.use(logger())

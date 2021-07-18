@@ -20,7 +20,7 @@ router
             const { data } = jwt.verify(ctx.cookie.authorization, 'loftschool')
             const admin = db.get('admin')
 
-            if (admin.email !== data.email || admin.password !== data.password) {
+            if (admin.email !== data.email) {
                 throw new Error('Нет прав для доступа')
             }
 
@@ -37,7 +37,7 @@ router
 
         const oldSkills = db.get('skills')
 
-        const newSkills = Object.values(oldSkills).map((item, index) => ({ number: parseInt(newValues[index]), text: item.text }))
+        const newSkills = Object.values(oldSkills).map((item, index) => ({ number: newValues[index], text: item.text }))
 
         if (JSON.stringify(newSkills) !== JSON.stringify(db.get('skills'))) {
             db.set('skills', newSkills)
@@ -75,7 +75,9 @@ router
                         price: ctx.request.body.price
                     }
 
-                    db.set('products', db.get('products') ? [...db.get('products'), saveFile] : [saveFile])
+                    const prevProducts = db.get('products') || []
+
+                    db.set('products', prevProducts ? [...prevProducts, saveFile] : [saveFile])
 
                     res('Продукт успешно добавлен')
                 })

@@ -16,8 +16,8 @@ router
                 const { data } = jwt.verify(ctx.cookie.authorization, 'loftschool')
                 const admin = db.get('admin')
 
-                if (admin.email !== data.email || admin.password !== data.password) {
-                    throw new Error('Неправильный токен')
+                if (admin.email !== data.email) {
+                    throw new Error('Ошибка авторизации')
                 } else {
                     ctx.redirect('/admin')
                 }
@@ -35,8 +35,7 @@ router
             const token = jwt.sign({
                 exp: Math.floor(Date.now() / 1000) + (60 * 60),
                 data: {
-                    email,
-                    password
+                    email
                 }
             }, 'loftschool')
             ctx.cookies.set('authorization', token)
