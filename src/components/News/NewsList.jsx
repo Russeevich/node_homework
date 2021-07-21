@@ -31,7 +31,7 @@ class NewsList extends PureComponent {
           {isLoading ? <div>Loading...</div> : null}
           {isLoaded ? (
             news.length ? (
-              news.map(post => <NewsListCard post={post} key={post.id} />)
+              news.map(post => <NewsListCard post={post} key={post._id} />)
             ) : (
               <div>Нет новостей</div>
             )

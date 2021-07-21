@@ -29,7 +29,7 @@ const styles = theme => ({
 
 const NewsListCard = withStyles(styles)(({ classes, post, dispatch, permission }) => {
   const removeNews = () => {
-    dispatch(deleteNews({ id: post.id }));
+    dispatch(deleteNews({ _id: post._id }));
   };
   const isUpdateAllowed = !!_get(permission, 'news.U', false);
   const isDeleteAllowed = !!_get(permission, 'news.D', false);
@@ -52,7 +52,7 @@ const NewsListCard = withStyles(styles)(({ classes, post, dispatch, permission }
         </Typography>
       </CardContent>
       <CardActions>
-      { isUpdateAllowed && <ButtonLink path={`/news/${post.id}/edit`}>Редактировать</ButtonLink> }
+      { isUpdateAllowed && <ButtonLink path={`/news/${post._id}/edit`}>Редактировать</ButtonLink> }
       { isDeleteAllowed && <Button onClick={removeNews}>Удалить</Button> }
       </CardActions>
     </Card>

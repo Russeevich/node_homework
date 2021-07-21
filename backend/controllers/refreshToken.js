@@ -3,17 +3,14 @@ const user = require('../database/user')
 
 const secretKey = process.env.SECRET_KEY
 
-
 module.exports = {
-    getLogin: async(req, res, next) => {
-        const { username, password } = req.body
+    getRefresh: async(req, res, next) => {
+        const { username, date } = jwt.verify(req.headers.authorization, secretKey)
 
         const people = await user.findOne({ username })
 
-        console.log(people, password)
-
-        if (people.password !== password) {
-            return res.status(500).send({ success: false, message: 'Неверный логин или пароль' })
+        if (!people) {
+            res.status(500).send({ success: false, message: 'Ошибка обновления токена' })
         }
 
         const auth = {
@@ -23,8 +20,6 @@ module.exports = {
             refreshTokenExpiredAt: Date.now() + 1000 * 60 * 60
         }
 
-        const token = {...people.toJSON(), ...auth }
-
-        res.status(200).send({ success: true, ...token })
+        res.status(200).send({ success: true, ...auth })
     }
 }

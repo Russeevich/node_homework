@@ -90,7 +90,7 @@ class AdminPanel extends PureComponent {
   handleChangeUser = event => {
     const { users } = this.props;
     const { value } = event.target;
-    const selectedUser = value ? _cloneDeep(users.find(u => u.id === value)) : null;
+    const selectedUser = value ? _cloneDeep(users.find(u => u._id === value)) : null;
     this.setState({
       selectedUserId: value,
       selectedUser,
@@ -107,7 +107,7 @@ class AdminPanel extends PureComponent {
   cancelHandler = () => {
     const { users } = this.props;
     const { selectedUserId } = this.state;
-    const selectedUser = _cloneDeep(users.find(u => u.id === selectedUserId));
+    const selectedUser = _cloneDeep(users.find(u => u._id === selectedUserId));
     selectedUserId &&
       this.setState({
         selectedUser,
@@ -138,7 +138,7 @@ class AdminPanel extends PureComponent {
                 <Select value={selectedUserId} onChange={this.handleChangeUser}>
                   <MenuItem value={null}>Не выбран</MenuItem>
                   {users.map(user => (
-                    <MenuItem value={user.id} key={user.id}>
+                    <MenuItem value={user._id} key={user._id}>
                       {user.username}
                     </MenuItem>
                   ))}

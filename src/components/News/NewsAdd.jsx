@@ -28,7 +28,7 @@ class NewsAdd extends PureComponent {
   componentDidMount() {
     const { match, newsList } = this.props;
     if (match.params.id) {
-      const { title, text, created_at, user } = newsList.find(news => news.id === match.params.id)
+      const { title, text, created_at, user } = newsList.find(news => news._id === match.params.id)
       this.setState({
         title,
         text,
@@ -47,7 +47,7 @@ class NewsAdd extends PureComponent {
     event.preventDefault();
     const { title, text } = this.state;
     const { history, dispatch, match } = this.props;
-    dispatch(match.params.id ? updateNews({ title, text, id: match.params.id }) : createNews({ title, text })).then(() => history.push(routes.news));
+    dispatch(match.params.id ? updateNews({ title, text, _id: match.params.id }) : createNews({ title, text })).then(() => history.push(routes.news));
   };
   render() {
     const { classes } = this.props;

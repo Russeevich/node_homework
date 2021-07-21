@@ -102,7 +102,7 @@ class ActiveChannelArea extends PureComponent {
 }
 const mapStateToProps = state => ({
   messageText: chatMessageText(state),
-  userId: userProfileSelector(state).id,
+  userId: userProfileSelector(state)._id,
   permission: userPermissionsSelector(state)
 });
 export default compose(
