@@ -3,24 +3,20 @@ const mongoose = require('mongoose')
 const mongoHost = "mongodb+srv://root:120evazus@cluster0.vu0xe.mongodb.net/LoftSchool?retryWrites=true&w=majority"
 
 const connect = async() => {
-    await mongoose.connect(mongoHost, {
+    return await mongoose.connect(mongoHost, {
         useNewUrlParser: true,
-        useUnifiedTopology: true,
+        useUnifiedTopology: false,
         useFindAndModify: false,
         useCreateIndex: true
     })
 }
 
-const close = async() => {
-    await mongoose.disconnect()
-}
-
 const useDB = async(fn) => {
-    await connect()
+    const db = await connect()
 
     const result = await fn()
 
-    await close()
+    await db.connection.close()
 
     return result
 }
@@ -28,6 +24,5 @@ const useDB = async(fn) => {
 module.exports = {
     mongoose,
     connect,
-    close,
     useDB
 }

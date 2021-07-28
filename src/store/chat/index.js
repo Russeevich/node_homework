@@ -54,7 +54,7 @@ export default combineReducers({
 
 export const connectSocket = () => (dispatch, getState) => {
     const userProfile = userProfileSelector(getState());
-    socket = socketIO('http://192.168.1.106:3000');
+    socket = socketIO('http://localhost:3000');
 
     socket.emit('users:connect', { userId: userProfile.id, username: userProfile.username });
 

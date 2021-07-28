@@ -1,5 +1,7 @@
 const uuid = require('uuid')
 const User = require('./database/user')
+const { useDB } = require('./database')
+
 
 let clients = {}
 let message = []
@@ -12,7 +14,7 @@ module.exports = {
             client.on('users:connect', async(data) => {
                 const { username } = data
 
-                const people = await User.findOne({ username })
+                const people = await useDB(async() => await User.findOne({ username }))
 
                 if (!people.permission.chat.R)
                     return
@@ -32,7 +34,9 @@ module.exports = {
             client.on('message:add', async(data) => {
                 const senderId = clients[data.roomId].userId
 
-                const people = await User.findOne({ username: Object.values(clients).find(item => item.userId === senderId).username })
+                const people = await useDB(async() => await User.findOne({
+                    username: Object.values(clients).find(item => item.userId === senderId).username
+                }))
 
                 if (!people.permission.chat.C)
                     return
@@ -52,7 +56,7 @@ module.exports = {
             client.on('message:history', async(data) => {
                 const { socketId } = Object.values(clients).find(item => item.userId === data.recipientId)
 
-                const people = await User.findOne({ username: clients[client.id].username })
+                const people = await useDB(async() => await User.findOne({ username: clients[client.id].username }))
 
                 if (!people.permission.chat.R)
                     return

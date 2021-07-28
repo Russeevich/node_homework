@@ -10,7 +10,13 @@ module.exports = {
     getLogin: async(req, res, next) => {
         const { username, password } = req.body
 
+        if (password.trim() === '' || username.trim() === '')
+            return res.status(500).send({ success: false, message: 'Неверный логин или пароль' })
+
         const people = await useDB(async() => await User.findOne({ username }))
+
+        if (!people)
+            return res.status(500).send({ success: false, message: 'Пользователя не найдено' })
 
         const isPassword = await bcrypt.compare(password, people.password)
 
