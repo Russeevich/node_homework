@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const User = require('../database/user')
 const { useDB } = require('../database')
 const path = require('path')
@@ -38,7 +39,7 @@ module.exports = {
         }
 
         if (newPassword.length > 0) {
-            if (people.password !== oldPassword) {
+            if (await bcrypt.compare(oldPassword, people.password)) {
                 return res.status(501).send({ success: false, message: 'Введен не верный пароль' })
             }
         }
@@ -62,7 +63,7 @@ module.exports = {
         }
 
         const updatedUser = await useDB(async() => {
-            await User.updateOne({ username }, { middleName, firstName, surName, password: newPassword, image })
+            await User.updateOne({ username }, { middleName, firstName, surName, password: await bcrypt.hash(newPassword, salt), image })
             return await User.findOne({ username })
         })
 
