@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { tokensSelector, refreshTokenRequest, logout } from '../store/auth';
 import { openNotification } from '../store/notifications';
-const baseURL = 'http://localhost:3000/api/';
+const baseURL = 'http://localhost:8080/api/';
 const instance = axios.create({ baseURL });
 
 const waitQueue = [];
