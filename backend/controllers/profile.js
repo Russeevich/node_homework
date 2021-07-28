@@ -39,7 +39,7 @@ module.exports = {
         }
 
         if (newPassword.length > 0) {
-            if (await bcrypt.compare(oldPassword, people.password)) {
+            if (!(await bcrypt.compare(oldPassword, people.password))) {
                 return res.status(501).send({ success: false, message: 'Введен не верный пароль' })
             }
         }
