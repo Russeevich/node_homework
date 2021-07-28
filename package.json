@@ -33,9 +33,9 @@
         "uuid": "^8.3.2"
     },
     "scripts": {
-        "start": "react-scripts start",
+        "start": "cross-env SECRET_KEY=LOFTSCHOOL SALT=10 PORT=3000 node backend/index.js",
+        "start:react": "react-scripts start",
         "server:dev": "cross-env SECRET_KEY=LOFTSCHOOL SALT=10 PORT=3000 nodemon backend/index.js",
-        "server:prod": "cross-env SECRET_KEY=LOFTSCHOOL SALT=10 PORT=3000 node backend/index.js",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
