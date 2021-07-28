@@ -6,6 +6,7 @@ const path = require('path')
 const fs = require('fs')
 
 const secretKey = process.env.SECRET_KEY
+const salt = parseInt(process.env.SALT)
 
 module.exports = {
     getProfile: async(req, res, next) => {
