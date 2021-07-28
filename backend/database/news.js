@@ -1,4 +1,4 @@
-const mongoose = require('./index')
+const { mongoose } = require('./index')
 
 const Schema = mongoose.Schema
 const ObjectId = Schema.ObjectId

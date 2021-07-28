@@ -26,4 +26,8 @@ app.get('/*', (req, res) => {
     res.sendFile(indexPath)
 })
 
+app.use(function(err, req, res, next) {
+    res.status(err.status || 500).send(err.message)
+})
+
 server.listen(port, () => console.log(`Server running on port ${port}`))

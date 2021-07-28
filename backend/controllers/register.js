@@ -1,21 +1,20 @@
 const jwt = require('jsonwebtoken')
-const user = require('../database/user')
+const { useDB } = require('../database')
+const User = require('../database/user')
+const bcrypt = require('bcrypt')
 
 const secretKey = process.env.SECRET_KEY
+const salt = parseInt(process.env.SALT)
 
 module.exports = {
-    getRegister: (req, res, next) => {
+    getRegister: async(req, res, next) => {
         const { username, surName, firstName, middleName, password } = req.body
 
-        const newUser = new user({
-            username,
-            surName,
-            firstName,
-            middleName,
-            password
-        })
+        const hash = await bcrypt.hash(password, salt)
 
-        newUser.save().then(() => console.log('Пользователь успешно добавлен')).catch(err => console.log(err))
+        if (!hash)
+            return res.status(500).send({ success: false, message: 'Ошибка генерации хэша' })
+
 
         const auth = {
             accessToken: jwt.sign({ username: username, date: Date.now() }, secretKey),
@@ -24,8 +23,22 @@ module.exports = {
             refreshTokenExpiredAt: Date.now() + 1000 * 60 * 60
         }
 
+        const newUser = new User({
+            username,
+            surName,
+            firstName,
+            middleName,
+            password: hash
+        })
+
+        const people = await useDB(async() => {
+            await newUser.save()
+            return await User.findOne({ username })
+        })
+
         const token = {...people.toJSON(), ...auth }
 
         res.status(200).send({ success: true, ...token })
+
     }
 }

@@ -1,4 +1,5 @@
 const uuid = require('uuid')
+const User = require('./database/user')
 
 let clients = {}
 let message = []
@@ -8,8 +9,13 @@ module.exports = {
     addListner: (soc) => {
         soc.on('connection', (client) => {
             const id = uuid.v4()
-            client.on('users:connect', data => {
+            client.on('users:connect', async(data) => {
                 const { username } = data
+
+                const people = await User.findOne({ username })
+
+                if (!people.permission.chat.R)
+                    return
 
                 clients[client.id] = {
                     username,
@@ -23,20 +29,33 @@ module.exports = {
                 client.broadcast.emit('users:add', clients[client.id])
             })
 
-            client.on('message:add', data => {
+            client.on('message:add', async(data) => {
+                const senderId = clients[data.roomId].userId
+
+                const people = await User.findOne({ username: Object.values(clients).find(item => item.userId === senderId).username })
+
+                if (!people.permission.chat.C)
+                    return
+
                 const newMessage = {
                     ...data,
                     id: uuid.v4(),
-                    senderId: clients[data.roomId].userId,
+                    senderId,
                     time: Date.now()
                 }
+
                 message.push(newMessage)
 
                 soc.to(newMessage.roomId).emit('message:add', newMessage)
             })
 
-            client.on('message:history', data => {
+            client.on('message:history', async(data) => {
                 const { socketId } = Object.values(clients).find(item => item.userId === data.recipientId)
+
+                const people = await User.findOne({ username: clients[client.id].username })
+
+                if (!people.permission.chat.R)
+                    return
 
                 client.join(socketId)
                 clients[client.id].activeRoom = socketId

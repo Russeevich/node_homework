@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
-const user = require('../database/user')
+const User = require('../database/user')
+const { useDB } = require('../database')
 const path = require('path')
 const fs = require('fs')
 
@@ -9,11 +10,7 @@ module.exports = {
     getProfile: async(req, res, next) => {
         const { username } = jwt.verify(req.headers.authorization, secretKey)
 
-        const people = await user.findOne({ username }, { password: false })
-
-        if (!people) {
-            return res.status(500).send({ success: false, message: 'Ошибка чтения данных пользователя' })
-        }
+        const people = await useDB(async() => await User.findOne({ username }, { password: false }))
 
         res.status(200).send({ success: true, ...people.toJSON() })
     },
@@ -22,61 +19,53 @@ module.exports = {
         const avatar = req.files.avatar ? req.files.avatar[0] : null
         const authorization = req.headers.authorization || null
 
-        if (authorization) {
-            const { username } = jwt.verify(authorization, secretKey)
+        const { username } = jwt.verify(authorization, secretKey)
 
-            const people = await user.findOne({ username })
+        const people = await useDB(async() => await User.findOne({ username }))
 
-            if (!people) {
-                return res.status(500).send({ success: false, message: 'Ошибка чтения данных пользователя' })
-            }
+        let image
 
-            if (avatar) {
-                if (people.image) {
-                    const oldPath = path.join(avatar.destination, people.image)
-                    if (fs.existsSync(oldPath)) {
-                        fs.unlinkSync(oldPath)
-                    }
+        if (avatar) {
+            if (people.image) {
+                const oldPath = path.join(avatar.destination, people.image)
+                const fileEx = await fs.promises.exists(oldPath)
+                if (fileEx) {
+                    await fs.promises.unlink(oldPath)
                 }
-                fs.renameSync(avatar.path, path.join(avatar.destination, avatar.originalname))
-                const image = avatar ? avatar.originalname : null
-                await user.updateOne({ username }, { image })
             }
-
-            if (newPassword.length > 0) {
-                if (people.password !== oldPassword) {
-                    return res.status(501).send({ success: false, message: 'Введен не верный пароль' })
-                }
-
-                await user.updateOne({ username }, { password: newPassword })
-            }
-
-            if (surName.length > 3) {
-                if (surName.trim() === '') {
-                    return res.status(501).send({ success: false, message: 'Длина поля не соотвествует' })
-                }
-                await user.updateOne({ username }, { surName })
-            }
-
-            if (firstName.length > 3) {
-                if (firstName.trim() === '') {
-                    return res.status(501).send({ success: false, message: 'Длина поля не соотвествует' })
-                }
-                await user.updateOne({ username }, { firstName })
-            }
-
-            if (middleName.length > 3) {
-                if (middleName.trim() === '') {
-                    return res.status(501).send({ success: false, message: 'Длина поля не соотвествует' })
-                }
-                await user.updateOne({ username }, { middleName })
-            }
-
-            const updatedUser = await user.findOne({ username })
-
-            res.status(201).json({ success: true, ...updatedUser.toJSON() })
-        } else {
-            res.status(500).send({ success: false, message: 'Ошибка авторизации' })
+            await fs.promises.rename(avatar.path, path.join(avatar.destination, avatar.originalname))
+            image = avatar ? avatar.originalname : null
         }
+
+        if (newPassword.length > 0) {
+            if (people.password !== oldPassword) {
+                return res.status(501).send({ success: false, message: 'Введен не верный пароль' })
+            }
+        }
+
+        if (surName.length > 3) {
+            if (surName.trim() === '') {
+                return res.status(501).send({ success: false, message: 'Длина поля не соотвествует' })
+            }
+        }
+
+        if (firstName.length > 3) {
+            if (firstName.trim() === '') {
+                return res.status(501).send({ success: false, message: 'Длина поля не соотвествует' })
+            }
+        }
+
+        if (middleName.length > 3) {
+            if (middleName.trim() === '') {
+                return res.status(501).send({ success: false, message: 'Длина поля не соотвествует' })
+            }
+        }
+
+        const updatedUser = await useDB(async() => {
+            await User.updateOne({ username }, { middleName, firstName, surName, password: newPassword, image })
+            return await User.findOne({ username })
+        })
+
+        res.status(201).json({ success: true, ...updatedUser.toJSON() })
     }
 }

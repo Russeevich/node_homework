@@ -1,41 +1,84 @@
 const express = require('express')
 const controllers = require('../controllers')
-let multer = require('multer')
+const multer = require('multer')
 const path = require('path')
-let upload = multer({ dest: path.join(__dirname, '../uploads') })
+const upload = multer({ dest: path.join(__dirname, '../uploads') })
+const { authMiddle, perMiddle } = require('../middleware')
 
 const router = express.Router()
 
 
 //AUTH
-router.post('/login', controllers.login.getLogin)
+router.post('/login',
+    controllers.login.getLogin
+)
 
-router.post('/registration', controllers.register.getRegister)
+router.post('/registration',
+    controllers.register.getRegister
+)
 
-router.post('/refresh-token', controllers.refreshToken.getRefresh)
+router.post('/refresh-token',
+    authMiddle.getAuth,
+    controllers.refreshToken.getRefresh
+)
 
 //PROFILE
 
-router.get('/profile', controllers.profile.getProfile)
+router.get('/profile',
+    authMiddle.getAuth,
+    controllers.profile.getProfile
+)
 
-router.patch('/profile', upload.fields([{ name: 'avatar' }]), controllers.profile.updateProfile)
+router.patch('/profile',
+    upload.fields([{ name: 'avatar' }]),
+    authMiddle.getAuth,
+    controllers.profile.updateProfile
+)
 
 //USERS
 
-router.get('/users', controllers.users.getUsers)
+router.get('/users',
+    authMiddle.getAuth,
+    perMiddle.admin,
+    controllers.users.getUsers
+)
 
-router.patch('/users/:id/permission', controllers.users.setUserPermission)
+router.patch('/users/:id/permission',
+    authMiddle.getAuth,
+    perMiddle.admin,
+    controllers.users.setUserPermission
+)
 
-router.delete('/users/:id', controllers.users.deleteUser)
+router.delete('/users/:id',
+    authMiddle.getAuth,
+    perMiddle.admin,
+    controllers.users.deleteUser
+)
 
 //NEWS
 
-router.get('/news', controllers.news.getNews)
+router.get('/news',
+    authMiddle.getAuth,
+    perMiddle.news,
+    controllers.news.getNews
+)
 
-router.post('/news', controllers.news.addNews)
+router.post('/news',
+    authMiddle.getAuth,
+    perMiddle.news,
+    controllers.news.addNews
+)
 
-router.patch('/news/:id', controllers.news.updateNews)
+router.patch('/news/:id',
+    authMiddle.getAuth,
+    perMiddle.news,
+    controllers.news.updateNews
+)
 
-router.delete('/news/:id', controllers.news.deleteNews)
+router.delete('/news/:id',
+    authMiddle.getAuth,
+    perMiddle.news,
+    controllers.news.deleteNews
+)
 
 module.exports = router

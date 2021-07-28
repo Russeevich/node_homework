@@ -1,13 +1,14 @@
 const jwt = require('jsonwebtoken')
-const user = require('../database/user')
+const { useDB } = require('../database')
+const User = require('../database/user')
 
 const secretKey = process.env.SECRET_KEY
 
 module.exports = {
     getRefresh: async(req, res, next) => {
-        const { username, date } = jwt.verify(req.headers.authorization, secretKey)
+        const { username } = jwt.verify(req.headers.authorization, secretKey)
 
-        const people = await user.findOne({ username })
+        const people = await useDB(async() => await User.findOne({ username }))
 
         if (!people) {
             res.status(500).send({ success: false, message: 'Ошибка обновления токена' })

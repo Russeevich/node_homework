@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken')
-const user = require('../database/user')
+const User = require('../database/user')
+const { useDB } = require('../database')
+const bcrypt = require('bcrypt')
 
 const secretKey = process.env.SECRET_KEY
 
@@ -8,13 +10,12 @@ module.exports = {
     getLogin: async(req, res, next) => {
         const { username, password } = req.body
 
-        const people = await user.findOne({ username })
+        const people = await useDB(async() => await User.findOne({ username }))
 
-        console.log(people, password)
+        const isPassword = await bcrypt.compare(password, people.password)
 
-        if (people.password !== password) {
+        if (!isPassword)
             return res.status(500).send({ success: false, message: 'Неверный логин или пароль' })
-        }
 
         const auth = {
             accessToken: jwt.sign({ username: username, date: Date.now() }, secretKey),
